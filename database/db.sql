@@ -6,15 +6,14 @@ CREATE TABLE IF NOT EXISTS shortener.users(
     name            VARCHAR(80) NOT NULL,
     email           VARCHAR(255) NOT NULL, UNIQUE,
     password        VARCHAR(1000) NOT NULL,
-    created_at      TIMESTAMP,
 
     CONSTRAINT users_pk PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS shortener.sessions(
     id              INTEGER AUTO_INCREMENT,
-    user_id         INTEGER,
-    token           VARCHAR(36),
+    user_id         INTEGER NOT NULL,UNIQUE
+    token           VARCHAR(36) NOT NULL,UNIQUE
 
     CONSTRAINT sessions_pk PRIMARY KEY(id),
     CONSTRAINT sessions_fk FOREIGN KEY(user_id) REFERENCES shortener.users(id)
