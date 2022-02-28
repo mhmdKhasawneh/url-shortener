@@ -1,4 +1,4 @@
-package models
+package database
 
 import (
 	"database/sql"
@@ -16,10 +16,10 @@ func (u *UrlQueries) InsertUrl(fullUrl string, shortenedUrl string, token string
 		return err
 	}
 
-	_, err = u.Db.Query("INSERT INTO shortener.urls(full_url, shortened_url, generated_by) VALUES(?,?,?)",
-	                     fullUrl, shortenedUrl, userId)
+	_, err = u.Db.Query("INSERT INTO shortener.urls(full_url, shortened_url, generated_by) VALUES(?,?,?);",
+		fullUrl, shortenedUrl, userId)
 
-	if err!=nil{
+	if err != nil {
 		return err
 	}
 
@@ -28,14 +28,14 @@ func (u *UrlQueries) InsertUrl(fullUrl string, shortenedUrl string, token string
 
 func (u *UrlQueries) ShortExists(url string) bool {
 	var exists int
-	_ = u.Db.QueryRow("SELECT EXISTS(SELECT * FROM shortener.urls WHERE shortened_url='?');", url).Scan(&exists)
+	_ = u.Db.QueryRow("SELECT EXISTS(SELECT * FROM shortener.urls WHERE shortened_url=?);", url).Scan(&exists)
 
-	return exists != 0
+	return exists!=0
 }
 
 func (u *UrlQueries) GetFullUrlFromShortened(shortUrl string) string {
 	var fullUrl string
-	_ = u.Db.QueryRow("SELECT full_url FROM shortener.urls WHERE short_url='?'",shortUrl).Scan(&fullUrl)
+	_ = u.Db.QueryRow("SELECT full_url FROM shortener.urls WHERE shortened_url=?", shortUrl).Scan(&fullUrl)
 
 	return fullUrl
 }

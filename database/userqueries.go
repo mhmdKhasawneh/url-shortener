@@ -1,18 +1,20 @@
-package models
+package database
 
 import (
 	"crypto/md5"
 	"database/sql"
+	"github.com/mhmdKhasawneh/url-shortener/models"
+
 )
 
 type UserQueries struct {
 	Db *sql.DB
 }
 
-func (u *UserQueries) InsertUser(user User) error {
+func (u *UserQueries) InsertUser(user models.User) error {
 	_, err := u.Db.Query(
-		"INSERT INTO shortener.users(name,email,password,user_type) VALUES(?,?,?,?);",
-		user.Name, user.Email, md5.Sum([]byte(user.Password)))
+		"INSERT INTO shortener.users(name,email,password) VALUES(?,?,?);",
+		user.Name, user.Email, user.Password)
 
 	if err != nil {
 		return err
@@ -23,7 +25,7 @@ func (u *UserQueries) InsertUser(user User) error {
 
 func (u *UserQueries) UserExists(email string) (bool, error) {
 	var check string
-	err := u.Db.QueryRow("SELECT email FROM shortener.users WHERE email='?';", email).Scan(&check)
+	err := u.Db.QueryRow("SELECT email FROM shortener.users WHERE email=?;", email).Scan(&check)
 
 	if err != nil {
 		return false, err
@@ -40,7 +42,7 @@ func (u *UserQueries) PasswordMatches(password string, email string) (bool, erro
 	hashedPassword := md5.Sum([]byte(password))
 	var hashedPasswordFromQuery [16]byte
 
-	err := u.Db.QueryRow("SELECT password FROM shortener.users WHERE email='?';", email).Scan(&hashedPasswordFromQuery)
+	err := u.Db.QueryRow("SELECT password FROM shortener.users WHERE email=?;", email).Scan(&hashedPasswordFromQuery)
 
 	if err != nil {
 		return false, err

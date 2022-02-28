@@ -5,9 +5,10 @@ import (
 	"log"
 	"net/http"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/mhmdKhasawneh/url-shortener/controllers"
-	"github.com/mhmdKhasawneh/url-shortener/models"
+	"github.com/mhmdKhasawneh/url-shortener/database"
 )
 
 func main() {
@@ -18,9 +19,9 @@ func main() {
 		panic(err.Error())
 	}
 
-	userDb := models.UserQueries{Db: db}
-	sessionDb := models.SessionQueries{Db: db}
-	urlDb := models.UrlQueries{Db: db, Sq: &sessionDb}
+	userDb := database.UserQueries{Db: db}
+	sessionDb := database.SessionQueries{Db: db}
+	urlDb := database.UrlQueries{Db: db, Sq: &sessionDb}
 	lettersAndNums := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
 	userOps := controllers.UserAPI{UserDb: &userDb, SessionDb: &sessionDb}

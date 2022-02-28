@@ -1,20 +1,22 @@
-package models
+package database
 
 import (
 	"database/sql"
 
 	"github.com/google/uuid"
+	"github.com/mhmdKhasawneh/url-shortener/models"
+
 )
 
 type SessionQueries struct {
 	Db *sql.DB
 }
 
-func (s *SessionQueries) CreateNewSession(email string) (Session, error) {
+func (s *SessionQueries) CreateNewSession(email string) (models.Session, error) {
 	userId, err := s.getIdFromEmail(email)
 
 	if err != nil {
-		return Session{}, err
+		panic(err.Error())
 	}
 
 	tok := uuid.New().String()
@@ -24,15 +26,15 @@ func (s *SessionQueries) CreateNewSession(email string) (Session, error) {
 		userId, tok)
 
 	if errs != nil {
-		return Session{}, errs
+		return models.Session{}, errs
 	}
 
-	return Session{UserId: userId, Token: tok}, nil
+	return models.Session{UserId: userId, Token: tok}, nil
 }
 
 func (s *SessionQueries) getIdFromEmail(email string) (int, error) {
 	var retrievedId int
-	err := s.Db.QueryRow("SELECT id FROM shortener.users WHERE email='?'", email).Scan(&retrievedId)
+	err := s.Db.QueryRow("SELECT id FROM shortener.users WHERE email=?;", email).Scan(&retrievedId)
 
 	if err != nil {
 		return -1, err
@@ -41,9 +43,9 @@ func (s *SessionQueries) getIdFromEmail(email string) (int, error) {
 	return retrievedId, nil
 }
 
-func (s *SessionQueries) getIdFromToken(token string) (int,error) {
+func (s *SessionQueries) getIdFromToken(token string) (int, error) {
 	var retrievedId int
-	err := s.Db.QueryRow("SELECT id FROM shortener.sessions WHERE token='?'", token).Scan(&retrievedId)
+	err := s.Db.QueryRow("SELECT user_id id FROM shortener.sessions WHERE token=?;", token).Scan(&retrievedId)
 
 	if err != nil {
 		return -1, err
@@ -53,7 +55,7 @@ func (s *SessionQueries) getIdFromToken(token string) (int,error) {
 }
 
 func (s *SessionQueries) DeleteSession(token string) error {
-	_, err := s.Db.Query("DELETE FROM shortener.sessions WHERE token='?';", token)
+	_, err := s.Db.Query("DELETE FROM shortener.sessions WHERE token=?;", token)
 
 	if err != nil {
 		return err

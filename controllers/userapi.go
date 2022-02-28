@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/mhmdKhasawneh/url-shortener/database"
 	"github.com/mhmdKhasawneh/url-shortener/models"
 )
 
 type UserAPI struct {
-	UserDb    *models.UserQueries
-	SessionDb *models.SessionQueries
+	UserDb    *database.UserQueries
+	SessionDb *database.SessionQueries
 }
 
 func (u *UserAPI) SignupUser(res http.ResponseWriter, req *http.Request) {
